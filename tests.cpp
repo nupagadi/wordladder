@@ -131,25 +131,28 @@ void FindPathTest()
    bool isOk = false;
    std::vector<std::wstring> dictionary;
 
-   isOk = wl::FillDictionary(dictionary, "word_rus.txt", 3);
+   isOk = wl::FillDictionary(dictionary, "word_rus.txt", 4);
    assert(isOk);
+
+   std::cout << "dictionary.size() "<<dictionary.size() <<std::endl;
 
    std::vector<std::vector<size_t>> neighbours;
    wl::FillNeighbours(neighbours, dictionary);
 
    std::vector<size_t> distances;
-   wl::CalcDistances(distances, neighbours, 2, 6);
+   wl::CalcDistances(distances, neighbours, 430, 664);
 
-   std::stack<size_t> path;
-   wl::FindPath(path, distances, neighbours, 2, 6);
+   std::vector<size_t> path;
+   wl::FindPath(path, distances, neighbours, 430, 664);
 
    //std::wofstream output("output.txt", std::fstream::app);
    //std::wcout.imbue(std::locale(std::locale::empty(), new std::codecvt_utf8<wchar_t>));
    std::wcout.imbue(std::locale(std::locale("Russian_Russia.866")));
-   for(; !path.empty(); path.pop())
+   for(size_t i = 0; i < path.size(); ++i)
    {
-      std::wcout << dictionary[path.top()] << std::endl;
+      std::wcout << dictionary[path[i]] << std::endl;
    }
+
 
    std::cout << "FindPathTest is OK!" << std::endl;
 }
