@@ -12,7 +12,6 @@
 namespace wl
 {
 
-// pass two strings of the same lenght
 bool IsNeighbours(const std::wstring& lh, const std::wstring& rh)
 {
    assert(lh.size() == rh.size());
