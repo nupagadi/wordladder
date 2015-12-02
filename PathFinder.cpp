@@ -128,5 +128,30 @@ bool PathFinder::Reset(const std::wstring& startWord, const std::wstring& endWor
    return  _status = true;
 }
 
+bool PathFinder::FindPath() const
+{
+   _neighbours.reset(new std::vector<std::vector<size_t>>());
+   if(!_neighbours)      return false;
+   _distances.reset(new std::vector<size_t>());
+   if(!_distances)      return false;
+
+   FillNeighbours(*_neighbours, *_dictionary);
+
+   CalcDistances(*_distances, *_neighbours, _start, _end);
+
+   _path.reset(new std::vector<size_t>);
+   wl::FindPath(*_path, *_distances, *_neighbours, _start, _end);
+
+   return true;
+}
+
+std::wostream& operator<<(std::wostream& stream, const PathFinder& obj)
+{
+   for(size_t i = 0; i < obj._path->size(); ++i)
+      stream << (*obj._dictionary)[(*obj._path)[i]] << std::endl;
+
+   return stream;
+}
+
 
 }  // namespace wl

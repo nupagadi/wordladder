@@ -6,6 +6,7 @@
 #include <codecvt>
 
 #include "WordLadder.h"
+#include "PathFinder.h"
 
 
 void FillDictionaryTest()
@@ -134,16 +135,14 @@ void FindPathTest()
    isOk = wl::FillDictionary(dictionary, "word_rus.txt", 4);
    assert(isOk);
 
-   std::cout << "dictionary.size() "<<dictionary.size() <<std::endl;
-
    std::vector<std::vector<size_t>> neighbours;
    wl::FillNeighbours(neighbours, dictionary);
 
    std::vector<size_t> distances;
-   wl::CalcDistances(distances, neighbours, 430, 664);
+   wl::CalcDistances(distances, neighbours, 0, 5);
 
    std::vector<size_t> path;
-   wl::FindPath(path, distances, neighbours, 430, 664);
+   wl::FindPath(path, distances, neighbours, 0, 5);
 
    //std::wofstream output("output.txt", std::fstream::app);
    //std::wcout.imbue(std::locale(std::locale::empty(), new std::codecvt_utf8<wchar_t>));
@@ -157,13 +156,35 @@ void FindPathTest()
    std::cout << "FindPathTest is OK!" << std::endl;
 }
 
+void PathFinderTest()
+{
+   wl::PathFinder pf("pakir.txt", "word_rus.txt");
+   if(!pf)  {
+      std::cout << "Fail!" << std::endl;
+      return;
+   }
+   if(!pf.FindPath())  {
+      std::cout << "Fail!" << std::endl;
+      return;
+   }
+   if(pf.IsTherePath())  {
+      std::wcout.imbue(std::locale(std::locale("Russian_Russia.866")));
+      std::wcout << pf;
+   }  else
+      std::cout << "No way!" << std::endl;
+
+
+   std::cout << "PathFinderTest is OK!" << std::endl;
+}
+
 void RunTests()
 {
    FillDictionaryTest();
    IsNeighboursTest();
    //FillNeighboursTest();
    //CalcDistancesTest();
-   FindPathTest();
+//    FindPathTest();
+   PathFinderTest();
 
    std::cout << "=================" << std::endl;
    std::cout << "All tests are OK!" << std::endl;
