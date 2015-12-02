@@ -2,17 +2,10 @@
 #include <iterator>
 #include <vector>
 #include <queue>
-#include <stack>
 #include <algorithm>
 #include <string>
 #include <cassert>
 #include <codecvt>
-
-
-
-#include <iostream>
-
-
 
 #include "WordLadder.h"
 
@@ -67,8 +60,6 @@ void FillNeighbours(std::vector<std::vector<size_t>>& neighbours, const std::vec
 
 void CalcDistances(std::vector<size_t> &distances, const std::vector<std::vector<size_t>>& neighbours, size_t start, size_t end)
 {
-   // CHECK START END!!!!!!!!!!
-
    distances.resize(neighbours.size(), -1);
    std::vector<bool> isChecked(neighbours.size());
 

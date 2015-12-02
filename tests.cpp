@@ -158,7 +158,7 @@ void FindPathTest()
 
 void PathFinderTest()
 {
-   wl::PathFinder pf("pakir.txt", "word_rus.txt");
+   wl::PathFinder pf("pair.txt", "word_rus.txt");
    if(!pf)  {
       std::cout << "Fail!" << std::endl;
       return;
@@ -174,6 +174,18 @@ void PathFinderTest()
       std::cout << "No way!" << std::endl;
 
 
+   pf.ResetPair(std::wstring(L"слон"), std::wstring(L"муха"));
+   if(!pf.FindPath())  {
+      std::cout << "Fail!" << std::endl;
+      return;
+   }
+   if(pf.IsTherePath())  {
+      std::wcout.imbue(std::locale(std::locale("Russian_Russia.866")));
+      std::wcout << pf;
+   }  else
+      std::cout << "No way!" << std::endl;
+
+   pf.Reset<std::wstring, std::wstring>(std::wstring(), std::wstring(), std::make_shared<std::vector<std::wstring>>());
    std::cout << "PathFinderTest is OK!" << std::endl;
 }
 

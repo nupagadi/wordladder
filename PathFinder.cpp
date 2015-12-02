@@ -68,7 +68,8 @@ bool PathFinder::Reset(const char* pairFile, const char* dictionaryFile)
    return  _status = true;
 }
 
-bool PathFinder::ResetPair(const std::wstring& startWord, const std::wstring& endWord)
+template<class T1, class T2>
+bool PathFinder::ResetPair(T1&& startWord, T2&& endWord)
 {
    // seek for the first word in the _dictionary
    auto iter = std::find_if(_dictionary->cbegin(), _dictionary->cend(), 
@@ -106,30 +107,52 @@ bool PathFinder::ResetPair(const std::wstring& startWord, const std::wstring& en
    *pSecondPos = iter - _dictionary->cbegin();
    return  _status = true;
 }
+// explicit template instantiation
+template
+   bool PathFinder::ResetPair<std::wstring, std::wstring>(std::wstring&& startWord, std::wstring&& endWord);
 
-bool PathFinder::Reset(const std::wstring& startWord, const std::wstring& endWord, std::shared_ptr<std::vector<std::wstring>> dictionarySptr)
+template<class T1, class T2>
+bool PathFinder::Reset(T1&& startWord, T2&& endWord, std::shared_ptr<std::vector<std::wstring>> dictionarySptr)
 {
    Reset();
    _dictionary = dictionarySptr;
    if(!_dictionary)
       return  _status = false;
-   if(!ResetPair(startWord, endWord))
+   if(!ResetPair(std::forward<T1>(startWord), std::forward<T2>(endWord)))
       return  _status = false;
    return  _status = true;
 }
-bool PathFinder::Reset(const std::wstring& startWord, const std::wstring& endWord, const std::vector<std::wstring>& dictionary)
+// explicit template instantiation
+template
+   bool PathFinder::Reset<std::wstring, std::wstring>(std::wstring&& startWord, std::wstring&& endWord, 
+      std::shared_ptr<std::vector<std::wstring>> dictionarySptr);
+
+template<class T1, class T2, class T3>
+bool PathFinder::Reset(T1&& startWord, T2&& endWord, T3&& dictionary)
 {
    Reset();
-   _dictionary.reset(new std::vector<std::wstring>(dictionary.cbegin(), dictionary.cend()));
+   _dictionary.reset(new std::vector<std::wstring>);
    if(!_dictionary)
       return  _status = false;
-   if(!ResetPair(startWord, endWord))
+   // vector is moved if we pass a right value reference to the method
+   *_dictionary = dictionary;
+   if(!ResetPair(std::forward<T1>(startWord), std::forward<T2>(endWord)))
       return  _status = false;
    return  _status = true;
 }
+// explicit template instantiation
+template
+   bool PathFinder::Reset<std::wstring, std::wstring, std::vector<std::wstring>>(
+            std::wstring&& startWord, std::wstring&& endWord, std::vector<std::wstring>&& dictionary);
 
 bool PathFinder::FindPath() const
 {
+   if(_start == _end)  {
+      if(_path = std::make_shared<std::vector<size_t>>())
+         return true;
+      else  return false;
+   }
+
    _neighbours.reset(new std::vector<std::vector<size_t>>());
    if(!_neighbours)      return false;
    _distances.reset(new std::vector<size_t>());
@@ -139,7 +162,8 @@ bool PathFinder::FindPath() const
 
    CalcDistances(*_distances, *_neighbours, _start, _end);
 
-   _path.reset(new std::vector<size_t>);
+   _path = std::make_shared<std::vector<size_t>>();
+   if(!_path)      return false;
    wl::FindPath(*_path, *_distances, *_neighbours, _start, _end);
 
    return true;
@@ -153,5 +177,23 @@ std::wostream& operator<<(std::wostream& stream, const PathFinder& obj)
    return stream;
 }
 
+PathFinder PathFinder::Clone() const
+{
+   PathFinder obj;
+   obj._status = _status;
+   obj._start = _start;
+   obj._end = _end;
+
+   obj._dictionary = nullptr;
+   obj._neighbours = nullptr;
+   obj._distances = nullptr;
+   obj._path = nullptr;
+   if(_dictionary)      obj._dictionary = std::make_shared<std::vector<std::wstring>>(*_dictionary);
+   if(_neighbours)      obj._neighbours = std::make_shared<std::vector<std::vector<size_t>>>(*_neighbours);
+   if(_distances)       obj._distances = std::make_shared<std::vector<size_t>>(*_distances);
+   if(_path)            obj._path = std::make_shared<std::vector<size_t>>(*_path);
+
+   return std::move(obj);
+}
 
 }  // namespace wl
