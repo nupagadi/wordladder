@@ -1,7 +1,10 @@
+#ifdef _DEBUG
+
 #include <vector>
 #include <string>
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <cassert>
 #include <codecvt>
 
@@ -87,7 +90,7 @@ void FillNeighboursTest()
 
    isOk = wl::FillDictionary(dictionary, "word_rus.txt", 3);
    assert(isOk);
-   assert(dictionary.size() == 252);
+   assert(dictionary.size() == 253);
 
    wl::FillNeighbours(neighbours, dictionary);
    assert(neighbours.size() == dictionary.size());
@@ -102,7 +105,7 @@ void FillNeighboursTest()
    assert(neighbours[30][4] == 87);
    assert(neighbours[30][5] == 163);
    assert(neighbours[30][6] == 192);
-   assert(neighbours[30][7] == 212);
+   assert(neighbours[30][7] == 213);
 
    assert(neighbours[1].size() == 0);
 
@@ -146,7 +149,7 @@ void FindPathTest()
 
    //std::wofstream output("output.txt", std::fstream::app);
    //std::wcout.imbue(std::locale(std::locale::empty(), new std::codecvt_utf8<wchar_t>));
-   std::wcout.imbue(std::locale(std::locale("Russian_Russia.866")));
+   std::wcout.imbue(std::locale("Russian_Russia.866"));
    for(size_t i = 0; i < path.size(); ++i)
    {
       std::wcout << dictionary[path[i]] << std::endl;
@@ -158,39 +161,43 @@ void FindPathTest()
 
 void PathFinderTest()
 {
-   wl::PathFinder pf("pair.txt", "word_rus.txt");
-   if(!pf)  {
-      std::cout << "Fail!" << std::endl;
-      return;
-   }
+   wl::PathFinder pf("tests/test2.txt", "word_rus.txt");
+   assert(pf);
+   if(!pf)      return;
+
    assert(!pf.IsTherePath());
-   if(!pf.FindPath())  {
-   assert(!pf.IsTherePath());
-      std::cout << "Fail!" << std::endl;
-      return;
-   }
 
-   if(pf.IsTherePath())  {
-      std::wcout.imbue(std::locale("Russian_Russia.866"));
-      std::wcout << pf;
-   }  else
-      std::cout << "No way!" << std::endl;
+   assert(pf.FindPath());
 
-   /*
-   pf.ResetPair(std::wstring(L"слон"), std::wstring(L"муха"));
-   if(!pf.FindPath())  {
-      std::cout << "Fail!" << std::endl;
-      return;
-   }
-   if(pf.IsTherePath())  {
-      std::wcout.imbue(std::locale("Russian_Russia.866"));
-      std::wcout << pf;
-   }  else
-      std::cout << "No way!" << std::endl;
+   assert(pf.IsTherePath());
 
-   pf.Reset<std::wstring, std::wstring>(std::wstring(), std::wstring(), std::make_shared<std::vector<std::wstring>>());
+   std::wstringstream pfStream1;
+   pfStream1 << pf;
+   assert(pfStream1);
 
-   */
+   std::wfstream test1File("tests/test1.txt");
+   test1File.imbue(std::locale(std::locale::empty(), new std::codecvt_utf8<wchar_t>));
+   std::wstringstream test1Stream;
+   test1Stream << test1File.rdbuf();
+
+   assert(test1Stream.str() == pfStream1.str());
+   
+   
+   assert(pf.ResetPair(std::wstring(L"слон"), std::wstring(L"муха")));
+   assert(pf.FindPath());
+   assert(pf.IsTherePath());
+
+   std::wstringstream pfStream2;
+   pfStream2 << pf;
+   assert(pfStream2);
+
+   std::wfstream test3File("tests/test3.txt");
+   test3File.imbue(std::locale(std::locale::empty(), new std::codecvt_utf8<wchar_t>));
+   std::wstringstream test3Stream;
+   test3Stream << test3File.rdbuf();
+
+   assert(test3Stream.str() == pfStream2.str());
+   
    std::cout << "PathFinderTest is OK!" << std::endl;
 }
 
@@ -198,11 +205,13 @@ void RunTests()
 {
    FillDictionaryTest();
    IsNeighboursTest();
-   //FillNeighboursTest();
-   //CalcDistancesTest();
-   //FindPathTest();
+   FillNeighboursTest();
+   CalcDistancesTest();
+   FindPathTest();
    PathFinderTest();
 
    std::cout << "=================" << std::endl;
    std::cout << "All tests are OK!" << std::endl;
 }
+
+#endif

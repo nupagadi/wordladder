@@ -71,6 +71,9 @@ bool PathFinder::Reset(const char* pairFile, const char* dictionaryFile)
 template<class T1, class T2>
 bool PathFinder::ResetPair(T1&& startWord, T2&& endWord)
 {
+   if(!_dictionary || startWord.size() != (*_dictionary)[0].size())
+      return false;
+
    // seek for the first word in the _dictionary
    auto iter = std::find_if(_dictionary->cbegin(), _dictionary->cend(), 
       [&startWord, &endWord](const std::wstring& word)  { return  word == startWord || word == endWord; }

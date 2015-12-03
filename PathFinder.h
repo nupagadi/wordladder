@@ -36,7 +36,7 @@ public:
    // returns true if there is a way
    bool FindPath() const;
 
-   // 3a. Can reset <start> and <end> word and find its path with the same dictionary
+   // 3a. Can reset <start> and <end> word (of the same length) and find its path with the same dictionary
    template<class T1, class T2>
       bool ResetPair(T1&& startWord, T2&& endWord);
 
@@ -52,7 +52,7 @@ public:
    PathFinder Clone() const;
 
 private:
-   bool _status; // MAKE ENUM (CLASS)
+   bool _status; // MAKE ENUM CLASS
    size_t _start, _end;
    std::shared_ptr<std::vector<std::wstring>> _dictionary;
 
