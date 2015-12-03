@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <string>
+#include <memory>
 
 namespace wl
 {
@@ -19,7 +20,7 @@ public:
 
    // 2. Then check if it is ok
    operator bool() const { return  _status && IsDictionaryOk() && IsPairOk(); }
-   bool IsDictionaryOk() const { return  _dictionary; }
+   bool IsDictionaryOk() const { return  _dictionary != nullptr; }
    bool IsPairOk() const { return  _start != -1 && _end != -1; }
 
    // 3. You can reset it several ways
