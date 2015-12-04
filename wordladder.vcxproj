@@ -75,10 +75,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="PathFinder.cpp" />
     <ClCompile Include="tests.cpp" />
     <ClCompile Include="WordLadder.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="PathFinder.h" />
     <ClInclude Include="WordLadder.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

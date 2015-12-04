@@ -2,17 +2,17 @@
 #include <iterator>
 #include <vector>
 #include <queue>
-#include <stack>
 #include <algorithm>
 #include <string>
 #include <cassert>
 #include <codecvt>
 
+#include "WordLadder.h"
+
 
 namespace wl
 {
 
-// pass two strings of the same lenght
 bool IsNeighbours(const std::wstring& lh, const std::wstring& rh)
 {
    assert(lh.size() == rh.size());
@@ -68,6 +68,8 @@ void CalcDistances(std::vector<size_t> &distances, const std::vector<std::vector
    distances[start] = 0;
    isChecked[start] = true;
    
+   size_t checkedNum = 0;
+
    // till there are words to operate
    while (!queue.empty())
    {
@@ -84,6 +86,8 @@ void CalcDistances(std::vector<size_t> &distances, const std::vector<std::vector
             // and mark as checked
             isChecked[neighbours[v][i]] = true;
 
+            ++checkedNum;
+
             // if end is checked, we know the path
             if(isChecked[end])  return;
 
@@ -94,24 +98,34 @@ void CalcDistances(std::vector<size_t> &distances, const std::vector<std::vector
    }
 }
 
-void FindPath(std::stack<size_t>& links, const std::vector<size_t> &distances, const std::vector<std::vector<size_t>>& neighbours, size_t start, size_t end)
+void FindPath(std::vector<size_t>& path, const std::vector<size_t> &distances, const std::vector<std::vector<size_t>>& neighbours, size_t start, size_t end)
 {
-   assert(links.empty());
-   
+   path.clear();
+
+   // check if there is a way from <start> to <end>
+   if(distances[end] == -1)  return;
+
+   path.resize(distances[end]+1);
+
+   // find path from the end to the beginning
    size_t pos = end;
    while(distances[pos])
    {
-      links.push(pos);
+      path[distances[pos]] = pos;
+      // finding the neighbour...
       for (size_t i = 0; i < neighbours[pos].size(); ++i)
       {
+         // ... which is closer by one step to the beginning
          if(distances[neighbours[pos][i]] == distances[pos]-1)
          {
+            // than find among its neighbours
             pos = neighbours[pos][i];
             break;
          }
       }
    }
-   links.push(start);
+   path[distances[start]] = start;
 }
+
 
 }  // namespace wl
