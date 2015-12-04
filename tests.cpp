@@ -11,18 +11,21 @@
 #include "WordLadder.h"
 #include "PathFinder.h"
 
-
+// dictionary filling
 void FillDictionaryTest()
 {
    bool isOk = false;
    std::vector<std::wstring> dictionary;
 
+   // error file name
    isOk = wl::FillDictionary(dictionary, "", 3);
    assert(!isOk);
 
+   // error word length
    isOk = wl::FillDictionary(dictionary, "nounlist.txt", 1);
    assert(!isOk);
 
+   // valid filling
    isOk = wl::FillDictionary(dictionary, "nounlist.txt", 3);
    assert(isOk);
    assert(dictionary.size() == 126);
@@ -31,6 +34,8 @@ void FillDictionaryTest()
    assert(dictionary[125] == L"zoo");
 
    dictionary.clear();
+
+   // exact check
    isOk = wl::FillDictionary(dictionary, "nounlist.txt", 2);
    assert(isOk);
    assert(dictionary.size() == 3);
@@ -44,6 +49,8 @@ void FillDictionaryTest()
    assert(dictionary.size() == 97);
 
    dictionary.clear();
+
+   // long words check
    isOk = wl::FillDictionary(dictionary, "nounlist.txt", 15);
    assert(isOk);
    assert(dictionary.size() == 2);
@@ -60,13 +67,17 @@ void FillDictionaryTest()
 
 void IsNeighboursTest()
 {
+   // equal
    assert(!wl::IsNeighbours(L"qwe", L"qwe"));
+   // non equal
    assert(wl::IsNeighbours(L"qwe", L"qwq"));
+   // swap lact two chars
    assert(!wl::IsNeighbours(L"qwe", L"qew"));
 
    std::cout << "IsNeighboursTest is OK!" << std::endl;
 }
 
+// filling words neighbours
 void FillNeighboursTest()
 {
    bool isOk = false;
@@ -74,11 +85,14 @@ void FillNeighboursTest()
 
    isOk = wl::FillDictionary(dictionary, "word_rus.txt", 2);
    assert(isOk);
+   // there are 14 words of length 2
    assert(dictionary.size() == 14);
 
    std::vector<std::vector<size_t>> neighbours;
    wl::FillNeighbours(neighbours, dictionary);
+   // neighbours vector count == words count
    assert(neighbours.size() == dictionary.size());
+   // exact words check
    assert(neighbours[0][0] == 1);
    assert(neighbours[0][1] == 10);
    assert(neighbours[4][0] == 5);
@@ -90,9 +104,11 @@ void FillNeighboursTest()
 
    isOk = wl::FillDictionary(dictionary, "word_rus.txt", 3);
    assert(isOk);
+   // there are 253 words of length 3
    assert(dictionary.size() == 253);
 
    wl::FillNeighbours(neighbours, dictionary);
+   // exact words check
    assert(neighbours.size() == dictionary.size());
    assert(neighbours[0].size() == 2);
    assert(neighbours[0][0] == 4);
@@ -107,11 +123,13 @@ void FillNeighboursTest()
    assert(neighbours[30][6] == 192);
    assert(neighbours[30][7] == 213);
 
+   // this word have no neighbours
    assert(neighbours[1].size() == 0);
 
    std::cout << "FillNeighboursTest is OK!" << std::endl;
 }
 
+// CalcDistances() function test
 void CalcDistancesTest()
 {
    bool isOk = false;
@@ -125,11 +143,13 @@ void CalcDistancesTest()
 
    std::vector<size_t> distances;
    wl::CalcDistances(distances, neighbours, 2, 6);
+   // there should be that many distances how many words we have
    assert(distances.size() == dictionary.size());
 
    std::cout << "CalcDistancesTest is OK!" << std::endl;
 }
 
+// FindPath() function test
 void FindPathTest()
 {
    bool isOk = false;
@@ -142,19 +162,25 @@ void FindPathTest()
    wl::FillNeighbours(neighbours, dictionary);
 
    std::vector<size_t> distances;
-   wl::CalcDistances(distances, neighbours, 0, 5);
+   wl::CalcDistances(distances, neighbours, 1, 16);
 
    std::vector<size_t> path;
-   wl::FindPath(path, distances, neighbours, 0, 5);
+   wl::FindPath(path, distances, neighbours, 1, 16);
 
-   //std::wofstream output("output.txt", std::fstream::app);
-   //std::wcout.imbue(std::locale(std::locale::empty(), new std::codecvt_utf8<wchar_t>));
+   std::wstringstream stream, fileStream;
+//    std::wcout.imbue(std::locale(std::locale::empty(), new std::codecvt_utf8<wchar_t>));
    std::wcout.imbue(std::locale("Russian_Russia.866"));
    for(size_t i = 0; i < path.size(); ++i)
-   {
-      std::wcout << dictionary[path[i]] << std::endl;
-   }
+//       std::wcout << dictionary[path[i]] << std::endl;
+      stream << dictionary[path[i]] << std::endl;
 
+   std::wfstream file("tests/test4.txt");
+   assert(file);
+   file.imbue(std::locale(std::locale::empty(), new std::codecvt_utf8<wchar_t>));
+   fileStream << file.rdbuf();
+
+   // check path validness
+   assert(fileStream.str() == stream.str());
 
    std::cout << "FindPathTest is OK!" << std::endl;
 }
@@ -162,27 +188,32 @@ void FindPathTest()
 void PathFinderTest()
 {
    wl::PathFinder pf("tests/test2.txt", "word_rus.txt");
+   // to bool conversion check
    assert(pf);
    if(!pf)      return;
 
+   // now there should be no path
    assert(!pf.IsTherePath());
-
+   // the path should be found
    assert(pf.FindPath());
-
+    // the path should be found  
    assert(pf.IsTherePath());
 
    std::wstringstream pfStream1;
    pfStream1 << pf;
+   // stream validness
    assert(pfStream1);
 
    std::wfstream test1File("tests/test1.txt");
+   assert(test1File);
    test1File.imbue(std::locale(std::locale::empty(), new std::codecvt_utf8<wchar_t>));
    std::wstringstream test1Stream;
    test1Stream << test1File.rdbuf();
 
+   // check path validness
    assert(test1Stream.str() == pfStream1.str());
    
-   
+   // reverse path using another methods
    assert(pf.ResetPair(std::wstring(L"слон"), std::wstring(L"муха")));
    assert(pf.FindPath());
    assert(pf.IsTherePath());
@@ -192,10 +223,12 @@ void PathFinderTest()
    assert(pfStream2);
 
    std::wfstream test3File("tests/test3.txt");
+   assert(test3File);
    test3File.imbue(std::locale(std::locale::empty(), new std::codecvt_utf8<wchar_t>));
    std::wstringstream test3Stream;
    test3Stream << test3File.rdbuf();
 
+   // check path validness
    assert(test3Stream.str() == pfStream2.str());
    
    std::cout << "PathFinderTest is OK!" << std::endl;
